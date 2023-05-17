@@ -7,7 +7,9 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.DefaultXYDataset;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Scanner;
 
 public class Main {
@@ -264,61 +266,47 @@ public class Main {
     }
 
     public static void SCAN(int curPos, int trkSz, int[] arr) {
+        ArrayList<Integer> left = new ArrayList<>();
+        ArrayList<Integer> right = new ArrayList<>();
+        ArrayList<Integer> sequence = new ArrayList<>();
 
-    }
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i] < curPos)
+                left.add(arr[i]);
+            else
+                right.add(arr[i]);
+        }
 
-    public static void LOOK(int curPos, int trkSz, int[] arr) {
+        Collections.sort(left);
+        Collections.sort(right);
 
-    }
+        for (int i = 0; i < right.size(); i++) {
+            sequence.add(right.get(i));
+        }
 
-    public static void CSCAN(int curPos, int trkSz, int[] arr) {
+        sequence.add(trkSz - 1);  // The head is now at the end
+        sequence.add(0);  // The head is now at the start
+
+        for (int i = left.size() - 1; i >= 0; i--) {
+            sequence.add(left.get(i));
+        }
+
         int totalHeadMovement = 0;
-        int maxTrack = trkSz - 1;  // Maximum track number
+        int prevPos = curPos;
 
-        // Sort the request locations in ascending order
-        Arrays.sort(arr);
-
-        // Find the index where the current position is less than or equal to the location
-        int index = 0;
-        while (index < arr.length && arr[index] < curPos) {
-            index++;
-        }
-
-        // Calculate head movement for the right direction
-        for (int i = index; i < arr.length; i++) {
-            totalHeadMovement += Math.abs(curPos - arr[i]);
-            curPos = arr[i];
-        }
-
-        // Move the head to the maximum track
-        totalHeadMovement += Math.abs(curPos - maxTrack);
-        curPos = maxTrack;
-
-        // Move the head to the starting track (track 0)
-        totalHeadMovement += Math.abs(curPos - 0);
-        curPos = 0;
-
-        // Calculate head movement for the left direction
-        for (int i = 0; i < index; i++) {
-            totalHeadMovement += Math.abs(curPos - arr[i]);
-            curPos = arr[i];
+        for (int i = 0; i < sequence.size(); i++) {
+            totalHeadMovement += Math.abs(sequence.get(i) - prevPos);
+            prevPos = sequence.get(i);
         }
 
         System.out.println("Total Head Movement: " + totalHeadMovement);
 
-        // Create a new array to represent the correct order of head movement
-        int[] headMovement = new int[arr.length];
-        headMovement[0] = curPos;
-        for (int i = 1; i < headMovement.length; i++) {
-            headMovement[i] = arr[i];
-        }
+        // Generate data for line plot
+        double[][] data = new double[2][sequence.size()];
 
-// Generate data for line plot
-        double[][] data = new double[2][headMovement.length];
-
-// Set data points for head movement
-        for (int i = 0; i < headMovement.length; i++) {
-            data[0][i] = headMovement[i];
+        // Set data points
+        for (int i = 0; i < sequence.size(); i++) {
+            data[0][i] = sequence.get(i);
             data[1][i] = i;
         }
 
@@ -327,7 +315,101 @@ public class Main {
 
         // Create line plot
         JFreeChart chart = ChartFactory.createXYLineChart(
-                "C-SCAN Disk Scheduling", "", "", dataset);  // Swap the x-axis and y-axis labels
+                "SCAN Disk Scheduling", "", "", dataset);  // Swap the x-axis and y-axis labels
+
+        XYPlot plot = chart.getXYPlot();
+        plot.getRenderer().setSeriesPaint(0, Color.BLUE);
+        plot.getRenderer().setSeriesStroke(0, new BasicStroke(2.0f));
+
+        // Customize x-axis to display whole numbers and place it on the top
+        NumberAxis domainAxis = (NumberAxis) plot.getDomainAxis();
+        domainAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+        domainAxis.setTickMarkInsideLength(4);  // Adjust the tick mark length
+        domainAxis.setAxisLineVisible(false);  // Hide the x-axis line
+
+        // Move the x-axis labels to the top
+        plot.setDomainAxisLocation(AxisLocation.TOP_OR_RIGHT);
+
+        // Customize y-axis to display whole numbers, reverse the range, and place it on the left side
+        NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
+        rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+        rangeAxis.setTickMarkInsideLength(4);  // Adjust the tick mark length
+        rangeAxis.setAxisLineVisible(false);  // Hide the y-axis line
+        rangeAxis.setInverted(true);  // Reverse the range
+        // Display line plot
+        ChartFrame frame = new ChartFrame("Disk Scheduling Visualization", chart);
+        frame.pack();
+        frame.setVisible(true);
+    }
+
+    public static void LOOK(int curPos, int trkSz, int[] arr) {
+
+    }
+
+    public static void CSCAN(int curPos, int trkSz, int[] arr) {
+        int totalHeadMovement = 0;
+        ArrayList<Integer> left = new ArrayList<>();
+        ArrayList<Integer> right = new ArrayList<>();
+        ArrayList<Integer> sequence = new ArrayList<>();
+
+        // Divide locations into two parts
+        // based on the current head position
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i] < curPos)
+                left.add(arr[i]);
+            else
+                right.add(arr[i]);
+        }
+
+        // Sort the locations
+        Collections.sort(left);
+        Collections.sort(right);
+
+        // Traverse the right side from current head
+        for (int i = 0; i < right.size(); i++) {
+            int prevPos = curPos;
+            curPos = right.get(i);
+            sequence.add(curPos);
+            totalHeadMovement += Math.abs(curPos - prevPos);
+        }
+
+
+        // Move to the last track
+        int prevPos = curPos;
+        curPos = trkSz - 1;
+        totalHeadMovement += Math.abs(curPos - prevPos);
+        sequence.add(curPos);
+
+        prevPos = curPos;
+        curPos = 0;  // The head is now at the start
+        totalHeadMovement += Math.abs(curPos - prevPos);
+        sequence.add(curPos);
+
+// Traverse the left side from the start
+        for (int i = 0; i < left.size(); i++) {
+            prevPos = curPos;
+            curPos = left.get(i);
+            sequence.add(curPos);
+            totalHeadMovement += Math.abs(curPos - prevPos);
+        }
+
+        System.out.println("Total Head Movement: " + totalHeadMovement);
+
+        // Generate data for line plot
+        double[][] data = new double[2][sequence.size()];
+
+        // Set data points
+        for (int i = 0; i < sequence.size(); i++) {
+            data[0][i] = sequence.get(i);
+            data[1][i] = i;
+        }
+
+        DefaultXYDataset dataset = new DefaultXYDataset();
+        dataset.addSeries("Head Movement", data);
+
+        // Create line plot
+        JFreeChart chart = ChartFactory.createXYLineChart(
+                "CSCAN Disk Scheduling", "", "", dataset);  // Swap the x-axis and y-axis labels
 
         XYPlot plot = chart.getXYPlot();
         plot.getRenderer().setSeriesPaint(0, Color.BLUE);
