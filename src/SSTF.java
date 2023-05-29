@@ -1,0 +1,108 @@
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartFrame;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.AxisLocation;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.data.xy.DefaultXYDataset;
+
+import java.awt.*;
+import java.util.Arrays;
+
+public class SSTF {
+    private static int[] arr;
+    private static int curPos;
+
+    public SSTF(int curPos, int[] arr) {
+        SSTF.curPos = curPos;
+        SSTF.arr = arr;
+    }
+
+    public static void run(){
+        int[] visited = new int[arr.length];  // Array to store the visited locations
+        int totalHeadMovement = 0;
+
+        // Copy the array to avoid modifying the original array
+        int[] remainingLocations = Arrays.copyOf(arr, arr.length);
+
+        // Iterate until all locations have been visited
+        for (int i = 0; i < arr.length; i++) {
+            int minDistance = Integer.MAX_VALUE;
+            int nextLocation = -1;
+
+            // Find the location with the shortest seek time
+            for (int j = 0; j < remainingLocations.length; j++) {
+                int distance = Math.abs(curPos - remainingLocations[j]);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    nextLocation = remainingLocations[j];
+                }
+            }
+
+            // Update the total head movement and current position
+            totalHeadMovement += minDistance;
+            curPos = nextLocation;
+
+            // Mark the location as visited
+            visited[i] = nextLocation;
+
+            // Remove the visited location from the remainingLocations array
+            remainingLocations = removeElement(remainingLocations, nextLocation);
+        }
+
+        System.out.println("Total Head Movement: " + totalHeadMovement);
+
+        // Generate data for line plot
+        double[][] data = new double[2][arr.length];
+
+        // Set data points
+        for (int i = 0; i < visited.length; i++) {
+            data[0][i] = visited[i];
+            data[1][i] = i;
+        }
+
+        DefaultXYDataset dataset = new DefaultXYDataset();
+        dataset.addSeries("Head Movement", data);
+
+        // Create line plot
+        JFreeChart chart = ChartFactory.createXYLineChart(
+                "SSTF Disk Scheduling", "", "", dataset);  // Swap the x-axis and y-axis labels
+
+        XYPlot plot = chart.getXYPlot();
+        plot.getRenderer().setSeriesPaint(0, Color.BLUE);
+        plot.getRenderer().setSeriesStroke(0, new BasicStroke(2.0f));
+
+        // Customize x-axis to display whole numbers and place it on the top
+        NumberAxis domainAxis = (NumberAxis) plot.getDomainAxis();
+        domainAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+        domainAxis.setTickMarkInsideLength(4);  // Adjust the tick mark length
+        domainAxis.setAxisLineVisible(false);  // Hide the x-axis line
+
+        // Move the x-axis labels to the top
+        plot.setDomainAxisLocation(AxisLocation.TOP_OR_RIGHT);
+
+        // Customize y-axis to display whole numbers, reverse the range, and place it on the left side
+        NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
+        rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+        rangeAxis.setTickMarkInsideLength(4);  // Adjust the tick mark length
+        rangeAxis.setAxisLineVisible(false);  // Hide the y-axis line
+        rangeAxis.setInverted(true);  // Reverse the range
+
+        // Display line plot
+        ChartFrame frame = new ChartFrame("Disk Scheduling Visualization", chart);
+        frame.pack();
+        frame.setVisible(true);
+    }
+
+    // Helper method to remove an element from an array
+    private static int[] removeElement(int[] arr, int element) {
+        int[] result = new int[arr.length - 1];
+        int index = 0;
+        for (int value : arr) {
+            if (value != element) {
+                result[index++] = value;
+            }
+        }
+        return result;
+    }
+}
