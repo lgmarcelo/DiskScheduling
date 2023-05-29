@@ -7,6 +7,7 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.DefaultXYDataset;
 
 import java.awt.*;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -18,6 +19,7 @@ public class Main {
         int currentPosition, trackSize, numReq;
         String choice;
         String repeat;
+        String direction;
         boolean validAlgo = false;
 
         boolean run = true;
@@ -77,8 +79,10 @@ public class Main {
                     case "c":
                     case "C":
                         System.out.println("\nYou have entered: " + choice.toUpperCase());
+                        System.out.println("Which direction? L/R: ");
+                        direction = sc.next();
                         validAlgo = true;
-                        SCAN(currentPosition, trackSize, arr);
+                        SCAN(currentPosition, trackSize, arr, direction);
                         break;
                     case "d":
                     case "D":
@@ -125,150 +129,29 @@ public class Main {
     }
 
     public static void FCFS(int curPos, int trkSz, int[] arr) {
-        int totalHeadMovement = 0;
-
-        // Calculate head movement
-        for (int i = 0; i < arr.length; i++) {
-            totalHeadMovement += Math.abs(curPos - arr[i]);
-            curPos = arr[i];
-        }
-
-        System.out.println("Total Head Movement: " + totalHeadMovement);
-
-        // Generate data for line plot
-        double[][] data = new double[2][arr.length];
-
-        // Set data points
-        for (int i = 0; i < arr.length; i++) {
-            data[0][i] = arr[i];
-            data[1][i] = i;
-        }
-
-        DefaultXYDataset dataset = new DefaultXYDataset();
-        dataset.addSeries("Head Movement", data);
-
-        // Create line plot
-        JFreeChart chart = ChartFactory.createXYLineChart(
-                "FCFS Disk Scheduling", "", "", dataset);  // Swap the x-axis and y-axis labels
-
-        XYPlot plot = chart.getXYPlot();
-        plot.getRenderer().setSeriesPaint(0, Color.BLUE);
-        plot.getRenderer().setSeriesStroke(0, new BasicStroke(2.0f));
-
-        // Customize x-axis to display whole numbers and place it on the top
-        NumberAxis domainAxis = (NumberAxis) plot.getDomainAxis();
-        domainAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-        domainAxis.setTickMarkInsideLength(4);  // Adjust the tick mark length
-        domainAxis.setAxisLineVisible(false);  // Hide the x-axis line
-
-        // Move the x-axis labels to the top
-        plot.setDomainAxisLocation(AxisLocation.TOP_OR_RIGHT);
-
-        // Customize y-axis to display whole numbers, reverse the range, and place it on the left side
-        NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
-        rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-        rangeAxis.setTickMarkInsideLength(4);  // Adjust the tick mark length
-        rangeAxis.setAxisLineVisible(false);  // Hide the y-axis line
-        rangeAxis.setInverted(true);  // Reverse the range
-
-        // Display line plot
-        ChartFrame frame = new ChartFrame("Disk Scheduling Visualization", chart);
-        frame.pack();
-        frame.setVisible(true);
+        FCFS fcfs = new FCFS(curPos, arr);
+        FCFS.run();
     }
 
     public static void SSTF(int curPos, int trkSz, int[] arr) {
-        int[] visited = new int[arr.length];  // Array to store the visited locations
-        int totalHeadMovement = 0;
-
-        // Copy the array to avoid modifying the original array
-        int[] remainingLocations = Arrays.copyOf(arr, arr.length);
-
-        // Iterate until all locations have been visited
-        for (int i = 0; i < arr.length; i++) {
-            int minDistance = Integer.MAX_VALUE;
-            int nextLocation = -1;
-
-            // Find the location with the shortest seek time
-            for (int j = 0; j < remainingLocations.length; j++) {
-                int distance = Math.abs(curPos - remainingLocations[j]);
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    nextLocation = remainingLocations[j];
-                }
-            }
-
-            // Update the total head movement and current position
-            totalHeadMovement += minDistance;
-            curPos = nextLocation;
-
-            // Mark the location as visited
-            visited[i] = nextLocation;
-
-            // Remove the visited location from the remainingLocations array
-            remainingLocations = removeElement(remainingLocations, nextLocation);
-        }
-
-        System.out.println("Total Head Movement: " + totalHeadMovement);
-
-        // Generate data for line plot
-        double[][] data = new double[2][arr.length];
-
-        // Set data points
-        for (int i = 0; i < visited.length; i++) {
-            data[0][i] = visited[i];
-            data[1][i] = i;
-        }
-
-        DefaultXYDataset dataset = new DefaultXYDataset();
-        dataset.addSeries("Head Movement", data);
-
-        // Create line plot
-        JFreeChart chart = ChartFactory.createXYLineChart(
-                "SSTF Disk Scheduling", "", "", dataset);  // Swap the x-axis and y-axis labels
-
-        XYPlot plot = chart.getXYPlot();
-        plot.getRenderer().setSeriesPaint(0, Color.BLUE);
-        plot.getRenderer().setSeriesStroke(0, new BasicStroke(2.0f));
-
-        // Customize x-axis to display whole numbers and place it on the top
-        NumberAxis domainAxis = (NumberAxis) plot.getDomainAxis();
-        domainAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-        domainAxis.setTickMarkInsideLength(4);  // Adjust the tick mark length
-        domainAxis.setAxisLineVisible(false);  // Hide the x-axis line
-
-        // Move the x-axis labels to the top
-        plot.setDomainAxisLocation(AxisLocation.TOP_OR_RIGHT);
-
-        // Customize y-axis to display whole numbers, reverse the range, and place it on the left side
-        NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
-        rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-        rangeAxis.setTickMarkInsideLength(4);  // Adjust the tick mark length
-        rangeAxis.setAxisLineVisible(false);  // Hide the y-axis line
-        rangeAxis.setInverted(true);  // Reverse the range
-
-        // Display line plot
-        ChartFrame frame = new ChartFrame("Disk Scheduling Visualization", chart);
-        frame.pack();
-        frame.setVisible(true);
+        SSTF sstf = new SSTF(curPos, arr);
+        SSTF.run();
     }
 
-    // Helper method to remove an element from an array
-    private static int[] removeElement(int[] arr, int element) {
-        int[] result = new int[arr.length - 1];
-        int index = 0;
-        for (int value : arr) {
-            if (value != element) {
-                result[index++] = value;
-            }
-        }
-        return result;
-    }
-
-    public static void SCAN(int curPos, int trkSz, int[] arr) {
+    public static void SCAN(int curPos, int trkSz, int[] arr, String dir) {
         ArrayList<Integer> left = new ArrayList<>();
         ArrayList<Integer> right = new ArrayList<>();
         ArrayList<Integer> sequence = new ArrayList<>();
+
+        if(dir.equalsIgnoreCase("L")){
+            //algo ng left
+//            System.out.println("left");
+        }else if(dir.equalsIgnoreCase("R")){
+            //algo ng right
+//            System.out.println("right");
+        }else{
+            System.out.println("Invalid direction");
+        }
 
         for (int i = 0; i < arr.length; i++) {
             if (arr[i] < curPos)
@@ -347,94 +230,8 @@ public class Main {
     }
 
     public static void CSCAN(int curPos, int trkSz, int[] arr) {
-        int totalHeadMovement = 0;
-        ArrayList<Integer> left = new ArrayList<>();
-        ArrayList<Integer> right = new ArrayList<>();
-        ArrayList<Integer> sequence = new ArrayList<>();
-
-        // Divide locations into two parts
-        // based on the current head position
-        for (int i = 0; i < arr.length; i++) {
-            if (arr[i] < curPos)
-                left.add(arr[i]);
-            else
-                right.add(arr[i]);
-        }
-
-        // Sort the locations
-        Collections.sort(left);
-        Collections.sort(right);
-
-        // Traverse the right side from current head
-        for (int i = 0; i < right.size(); i++) {
-            int prevPos = curPos;
-            curPos = right.get(i);
-            sequence.add(curPos);
-            totalHeadMovement += Math.abs(curPos - prevPos);
-        }
-
-
-        // Move to the last track
-        int prevPos = curPos;
-        curPos = trkSz - 1;
-        totalHeadMovement += Math.abs(curPos - prevPos);
-        sequence.add(curPos);
-
-        prevPos = curPos;
-        curPos = 0;  // The head is now at the start
-        totalHeadMovement += Math.abs(curPos - prevPos);
-        sequence.add(curPos);
-
-// Traverse the left side from the start
-        for (int i = 0; i < left.size(); i++) {
-            prevPos = curPos;
-            curPos = left.get(i);
-            sequence.add(curPos);
-            totalHeadMovement += Math.abs(curPos - prevPos);
-        }
-
-        System.out.println("Total Head Movement: " + totalHeadMovement);
-
-        // Generate data for line plot
-        double[][] data = new double[2][sequence.size()];
-
-        // Set data points
-        for (int i = 0; i < sequence.size(); i++) {
-            data[0][i] = sequence.get(i);
-            data[1][i] = i;
-        }
-
-        DefaultXYDataset dataset = new DefaultXYDataset();
-        dataset.addSeries("Head Movement", data);
-
-        // Create line plot
-        JFreeChart chart = ChartFactory.createXYLineChart(
-                "CSCAN Disk Scheduling", "", "", dataset);  // Swap the x-axis and y-axis labels
-
-        XYPlot plot = chart.getXYPlot();
-        plot.getRenderer().setSeriesPaint(0, Color.BLUE);
-        plot.getRenderer().setSeriesStroke(0, new BasicStroke(2.0f));
-
-        // Customize x-axis to display whole numbers and place it on the top
-        NumberAxis domainAxis = (NumberAxis) plot.getDomainAxis();
-        domainAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-        domainAxis.setTickMarkInsideLength(4);  // Adjust the tick mark length
-        domainAxis.setAxisLineVisible(false);  // Hide the x-axis line
-
-        // Move the x-axis labels to the top
-        plot.setDomainAxisLocation(AxisLocation.TOP_OR_RIGHT);
-
-        // Customize y-axis to display whole numbers, reverse the range, and place it on the left side
-        NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
-        rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-        rangeAxis.setTickMarkInsideLength(4);  // Adjust the tick mark length
-        rangeAxis.setAxisLineVisible(false);  // Hide the y-axis line
-        rangeAxis.setInverted(true);  // Reverse the range
-
-        // Display line plot
-        ChartFrame frame = new ChartFrame("Disk Scheduling Visualization", chart);
-        frame.pack();
-        frame.setVisible(true);
+        CSCAN cscan = new CSCAN(curPos, trkSz, arr);
+        CSCAN.run();
     }
 
     public static void CLOOK(int curPos, int trkSz, int[] arr) {
