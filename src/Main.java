@@ -1,16 +1,3 @@
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartFrame;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.AxisLocation;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.data.xy.DefaultXYDataset;
-
-import java.awt.*;
-import java.sql.SQLOutput;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Scanner;
 
 public class Main {
@@ -19,7 +6,6 @@ public class Main {
         int currentPosition, trackSize, numReq;
         String choice;
         String repeat;
-        String direction;
         boolean validAlgo = false;
 
         boolean run = true;
@@ -55,59 +41,50 @@ public class Main {
             do {
                 System.out.print("\n[A] First Come First Serve (FCFS)" +
                         "\n[B] Shortest Seek Time First (SSTF)" +
-                        "\n[C] Scan" +
-                        "\n[D] Look" +
-                        "\n[E] Circular Scan (CSCAN)" +
-                        "\n[F] Circular Look (CLOOK)" +
-                        "\n[G] Exit");
+                        "\n[C] Circular Scan (CSCAN)" +
+                        "\n[D] Circular Look (CLOOK)" +
+                        "\n[E] Exit");
                 System.out.println("\n\nEnter disk scheduling algorithm: ");
                 choice = sc.next();
 
                 switch (choice) {
                     case "A":
                     case "a":
+                        //fcfs
                         System.out.println("\nYou have entered: " + choice.toUpperCase());
                         validAlgo = true;
                         FCFS(currentPosition, trackSize, arr);
                         break;
                     case "b":
                     case "B":
+                        //sstf
                         System.out.println("\nYou have entered: " + choice.toUpperCase());
                         validAlgo = true;
                         SSTF(currentPosition, trackSize, arr);
                         break;
                     case "c":
                     case "C":
-                        System.out.println("\nYou have entered: " + choice.toUpperCase());
-                        System.out.println("Which direction? L/R: ");
-                        direction = sc.next();
-                        validAlgo = true;
-                        SCAN(currentPosition, trackSize, arr, direction);
-                        break;
-                    case "d":
-                    case "D":
-                        System.out.println("\nYou have entered: " + choice.toUpperCase());
-                        validAlgo = true;
-                        LOOK(currentPosition, trackSize, arr);
-                        break;
-                    case "e":
-                    case "E":
+                        //cscan
                         System.out.println("\nYou have entered: " + choice.toUpperCase());
                         validAlgo = true;
                         CSCAN(currentPosition, trackSize, arr);
                         break;
-                    case "f":
-                    case "F":
+                    case "d":
+                    case "D":
+                        //clook
                         System.out.println("\nYou have entered: " + choice.toUpperCase());
                         validAlgo = true;
                         CLOOK(currentPosition, trackSize, arr);
                         break;
-                    case "g":
-                    case "G":
+
+                    case "e":
+                    case "E":
+                        //exit
                         System.out.println("\nYou have entered: " + choice.toUpperCase());
                         System.out.println("Exited");
                         run = false;
                         break;
+
                     default:
                         System.out.println("\nYou have entered: " + choice.toUpperCase());
                         System.out.println("Invalid choice");
@@ -136,14 +113,6 @@ public class Main {
     public static void SSTF(int curPos, int trkSz, int[] arr) {
         SSTF sstf = new SSTF(curPos, arr);
         SSTF.run();
-    }
-
-    public static void SCAN(int curPos, int trkSz, int[] arr, String dir) {
-
-    }
-
-    public static void LOOK(int curPos, int trkSz, int[] arr) {
-
     }
 
     public static void CSCAN(int curPos, int trkSz, int[] arr) {
