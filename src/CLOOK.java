@@ -63,7 +63,7 @@ public class CLOOK {
 
 
 
-        System.out.println("Total number of seek operations = " + seek_count);
+        System.out.println("Total Head Movement: " + seek_count);
 
         System.out.println("Seek Sequence is");
 
